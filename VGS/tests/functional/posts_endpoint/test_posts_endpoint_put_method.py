@@ -1,0 +1,34 @@
+import requests
+
+from lib.aux import validate_posts_endpoint_response_json_schema
+from lib.constants import posts_endpoint, posts_endpoint_put_method_request_json
+
+
+# Validate the status code of the response of put request to update a valid post is 200
+def test_valid_post_response_status_code_is_200():
+    response = requests.put("{}/1".format(posts_endpoint))
+    assert response.status_code == 200
+
+
+# Validate the status code of the response of put request to update a non-existent post is 500
+def test_invalid_post_response_status_code_is_500():
+    response = requests.put("{}/1000".format(posts_endpoint))
+    assert response.status_code == 500
+
+
+# Validate the content type of the response when making put request to the "posts" endpoint is json
+def test_response_content_type_is_json():
+    response = requests.put("{}/1".format(posts_endpoint))
+    assert "application/json" in response.headers["Content-Type"]
+
+
+# Validate the json schema of the response when making a put request to the "posts" endpoint
+def test_response_json_schema_validation():
+    response = requests.put("{}/1".format(posts_endpoint), json=posts_endpoint_put_method_request_json)
+    assert validate_posts_endpoint_response_json_schema(response.json())
+
+
+# Validate the number of fields returned in the response when making a put request to the "posts" endpoint
+def test_number_of_items_returned():
+    response = requests.put("{}/1".format(posts_endpoint))
+    assert len(response.json()) == 1
